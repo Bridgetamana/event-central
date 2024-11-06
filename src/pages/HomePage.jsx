@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Users, Menu, X, Star } from "lucide-react";
-
-import Logo from "../components/ui/Logo";
+import { Calendar, MapPin, Users, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [hoveredEvent, setHoveredEvent] = useState(null);
   const [stats, setStats] = useState({
@@ -13,24 +11,6 @@ const HomePage = () => {
     organizers: 0,
     attendees: 0,
   });
-
-  const navLinks = [
-    { name: "Browse Events", section: "browse-events" },
-    { name: "Featured Event", section: "featured-event" },
-    { name: "Pricing", section: "pricing" },
-    { name: "About Us", section: "about-us" },
-  ];
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -71,79 +51,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
-      <nav className="fixed w-full backdrop-blur-sm bg-white/75 border-b border-indigo-100 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <Logo />
-            </motion.div>
-
-            <div className="hidden md:flex space-x-4">
-              {navLinks.map((link) => (
-                <button
-                  key={link.name}
-                  onClick={() => scrollToSection(link.section)}
-                  className={`text-zinc-600 hover:text-indigo-600 transition-colors rounded-lg ${
-                    activeSection === link.section
-                      ? "text-indigo-700 font-semibold"
-                      : ""
-                  }`}
-                >
-                  {link.name}
-                </button>
-              ))}
-            </div>
-
-            <div className="md:hidden flex items-center space-x-4">
-              <button
-                className="text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors p-2"
-                onClick={toggleMobileMenu}
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
-              </button>
-            </div>
-
-            <div className="hidden md:flex items-center space-x-4">
-              <button className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-                Log in
-              </button>
-              <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                Get Started
-              </button>
-            </div>
-          </div>
-
-          {isMobileMenuOpen && (
-            <div className="md:hidden flex flex-col space-y-4 mt-4 bg-white p-4 rounded-lg shadow-lg">
-              {navLinks.map((link) => (
-                <button
-                  key={link.name}
-                  onClick={() => {
-                    scrollToSection(link.section);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="text-zinc-600 hover:text-indigo-600 transition-colors"
-                >
-                  {link.name}
-                </button>
-              ))}
-              <button className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-                Log in
-              </button>
-              <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                Get Started
-              </button>
-            </div>
-          )}
-        </div>
-      </nav>
 
       <section className="relative min-h-screen pt-32 overflow-hidden">
         <motion.div
@@ -205,7 +112,7 @@ const HomePage = () => {
                 Create Your Event
               </button>
               <button className="px-8 py-4 rounded-lg border-2 border-indigo-200 text-indigo-700 font-medium hover:bg-indigo-50 transform hover:scale-105 transition-all">
-                Browse Events
+                <Link to="/events">Browse Events</Link>
               </button>
             </div>
           </div>
@@ -559,56 +466,6 @@ const HomePage = () => {
         </div>
       </section>
 
-      <footer className="bg-zinc-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <Logo />
-              <p className="text-zinc-400 mt-2">
-                Empowering you to create memorable events that connect and
-                inspire. 
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                {navLinks.map((link) => (
-                  <li key={link.name}>
-                    <a
-                      href="#"
-                      className="text-zinc-400 hover:text-white transition-colors"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-              <ul className="space-y-2">
-                {["Twitter", "LinkedIn", "Facebook", "Instagram"].map(
-                  (item) => (
-                    <li key={item}>
-                      <a
-                        href="#"
-                        className="text-zinc-400 hover:text-white transition-colors"
-                      >
-                        {item}
-                      </a>
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-zinc-800 mt-8 pt-6 text-center text-zinc-400">
-            <p>© 2024 EventHub. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
