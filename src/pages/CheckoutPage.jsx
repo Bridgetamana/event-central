@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Calendar, MapPin, CreditCard, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Calendar, MapPin, X, Check, CreditCard, ChevronRight, ChevronLeft } from "lucide-react";
+import { showToast } from "../utils/toast";
 
 const CheckoutPage = () => {
-  
   const [currentStep, setCurrentStep] = useState(1);
   const [event, setEvent] = useState({
     title: "Event",
@@ -12,20 +12,39 @@ const CheckoutPage = () => {
     image: "",
     price: {
       regular: 5000,
-      vip: 15000
-    }
+      vip: 15000,
+      premium: 25000,
+    },
+    tickets: {
+      regular: 100,
+      vip: 50,
+      premium: 20,
+    },
   });
   
   const [ticketSelection, setTicketSelection] = useState({
     regular: 0,
-    vip: 0
+    vip: 0,
+    premium: 0,
   });
-  
+
+  const [promoCode, setPromoCode] = useState("");
+  const [promoCodeStatus, setPromoCodeStatus] = useState(null);
+  const [discount, setDiscount] = useState(0);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: ''
+  });
+
+  const [errors, setErrors] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    tickets: '',
   });
 
   const steps = [
@@ -36,8 +55,10 @@ const CheckoutPage = () => {
 
   const calculateTotal = () => {
     const subtotal = (ticketSelection.regular * event.price.regular) + (ticketSelection.vip * event.price.vip);
-    const serviceFee = subtotal * 0.03;
-    return { subtotal, serviceFee, total: subtotal + serviceFee };
+    const serviceFee = subtotal * 0.037;
+    const discountAmount = (subtotal + serviceFee) * (discount / 100);
+    return { subtotal, serviceFee, discount: discountAmount, total: subtotal + serviceFee - discountAmount,
+    };
   };
 
   const handleTicketChange = (type, action) => {
@@ -55,6 +76,24 @@ const CheckoutPage = () => {
     }));
   };
 
+  const validatePromoCode = () => {
+    const validPromoCodes = {
+      EARLYBIRD: 10,
+    };
+
+    if (validPromoCodes[promoCode.toUpperCase()]) {
+      setDiscount(validPromoCodes[promoCode.toUpperCase()]);
+      showToast.success(
+        `${validPromoCodes[promoCode.toUpperCase()]}% discount applied!`
+      );
+      setPromoCodeStatus("success");
+    } else {
+      showToast.error("Invalid promo code");
+      setPromoCodeStatus("error");
+      setDiscount(0);
+    }
+  };
+
   const canProceed = () => {
     if (currentStep === 1) {
       return (ticketSelection.regular > 0 || ticketSelection.vip > 0);
@@ -66,7 +105,7 @@ const CheckoutPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 pt-24">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
@@ -140,6 +179,67 @@ const CheckoutPage = () => {
                       </button>
                     </div>
                   </div>
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <h3 className="font-medium">Premium Ticket</h3>
+                      <p className="text-gray-600">
+                        ₦{event.price.premium.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() =>
+                          handleTicketChange('premium', 'decrease')
+                        }
+                        className="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center">
+                        {ticketSelection.premium}
+                      </span>
+                      <button
+                        onClick={() =>
+                          handleTicketChange('premium', 'increase')
+                        }
+                        className="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-gray-50"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) =>
+                          setPromoCode(e.target.value.toUpperCase())
+                        }
+                        placeholder="Enter promo code"
+                        className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      />
+                      <button
+                        onClick={validatePromoCode}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {promoCodeStatus === "success" && (
+                      <div className="flex items-center text-green-600 mt-2">
+                        <Check className="w-4 h-4 mr-2" />
+                        <span>{discount}% discount applied!</span>
+                      </div>
+                    )}
+                    {promoCodeStatus === "error" && (
+                      <div className="flex items-center text-red-600 mt-2">
+                        <X className="w-4 h-4 mr-2" />
+                        <span>Invalid promo code</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -208,25 +308,34 @@ const CheckoutPage = () => {
               <div className="flex justify-between mt-8">
                 {currentStep > 1 && (
                   <button
-                    onClick={() => setCurrentStep(currentStep - 1)}
+                    onClick={() => setCurrentStep((prev) => prev - 1)}
                     className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800"
                   >
-                    <ChevronLeft className="w-4 h-4 mr-2" />
+                    <ChevronLeft className="w-5 h-5 mr-2" />
                     Back
                   </button>
                 )}
-                {currentStep < 3 && (
+                {currentStep < steps.length && (
                   <button
-                    onClick={() => setCurrentStep(currentStep + 1)}
+                    onClick={() =>
+                      canProceed() && setCurrentStep((prev) => prev + 1)
+                    }
                     disabled={!canProceed()}
-                    className="ml-auto flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    className={`ml-auto flex items-center px-6 py-2 rounded-lg ${
+                      canProceed()
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
                   >
                     Continue
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </button>
                 )}
-                {currentStep === 3 && (
+                {currentStep === steps.length && (
                   <button
+                    onClick={() => {
+                      console.log("ticket purchsed")
+                    }}
                     className="ml-auto flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
                   >
                     Pay Now
@@ -271,13 +380,37 @@ const CheckoutPage = () => {
                 {ticketSelection.vip > 0 && (
                   <div className="flex justify-between text-sm">
                     <span>VIP Ticket x {ticketSelection.vip}</span>
-                    <span>₦{(ticketSelection.vip * event.price.vip).toLocaleString()}</span>
+                    <span>
+                      ₦
+                      {(ticketSelection.vip * event.price.vip).toLocaleString()}
+                    </span>
                   </div>
                 )}
+                {ticketSelection.premium > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span>Premium Ticket x {ticketSelection.premium}</span>
+                    <span>
+                      ₦
+                      {(
+                        ticketSelection.premium * event.price.premium
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span>Subtotal</span>
+                  <span>₦{calculateTotal().subtotal.toLocaleString()}</span>
+                </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Service Fee (3%)</span>
+                  <span>Service Fee (3.7%)</span>
                   <span>₦{calculateTotal().serviceFee.toLocaleString()}</span>
                 </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Discount ({discount}%)</span>
+                    <span>-₦{calculateTotal().discount.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-semibold pt-2 border-t">
                   <span>Total</span>
                   <span>₦{calculateTotal().total.toLocaleString()}</span>

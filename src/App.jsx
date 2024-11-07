@@ -5,10 +5,12 @@ import EventDetailPage from "./pages/EventDetailPage";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import CheckoutPage from "./pages/CheckoutPage";
+import { ToastContainer } from 'react-toastify';
 
 const App = () => {
   return (
     <Router>
+      <ToastContainer />
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
