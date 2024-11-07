@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getAllEvents, getEventsByCategory, filterEventsByPrice,searchEvents,
 } from "../config/eventStore";
+import Loading from "../components/ui/Loading";
 
 const EventsPage = () => {
   const navigate = useNavigate();
@@ -96,9 +97,7 @@ const EventsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
+      <Loading />
     );
   }
 
