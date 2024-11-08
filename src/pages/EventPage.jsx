@@ -7,11 +7,13 @@ import { useNavigate } from "react-router-dom";
 import { getAllEvents, getEventsByCategory, filterEventsByPrice,searchEvents,
 } from "../config/eventStore";
 import Loading from "../components/ui/Loading";
+import PageLoader from "../components/ui/PageLoader";
 
 const EventsPage = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     category: "",
@@ -28,6 +30,7 @@ const EventsPage = () => {
         setEvents(allEvents);
       } catch (error) {
         console.error("Error:", error);
+        setError("An error occurred while fetching events. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -43,6 +46,7 @@ const EventsPage = () => {
         setEvents(searchResults);
       } catch (error) {
         console.error("Error:", error);
+        setError("An error occurred while searching for events. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -69,6 +73,26 @@ const EventsPage = () => {
       setEvents(filteredResults);
     } catch (error) {
       console.error("Error:", error);
+      setError("An error occurred while filtering events. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearFilters = async () => {
+    setFilters({
+      category: "",
+      date: "",
+      price: "",
+    });
+    setCurrentPage(1);
+    setLoading(true);
+    try {
+      const allEvents = await getAllEvents();
+      setEvents(allEvents);
+    } catch (error) {
+      console.error("Error:", error);
+      setError("An error occurred while clearing filters. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -95,14 +119,9 @@ const EventsPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <Loading />
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
+      {loading && <PageLoader />}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 py-20 px-4">
         <div className="max-w-7xl mx-auto mt-10">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-8">
@@ -127,6 +146,7 @@ const EventsPage = () => {
           <select
             name="category"
             onChange={handleFilterChange}
+            value={filters.category}
             className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
           >
             <option value="">Category</option>
@@ -139,6 +159,7 @@ const EventsPage = () => {
           <select
             name="date"
             onChange={handleFilterChange}
+            value={filters.date}
             className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
           >
             <option value="">Date</option>
@@ -151,17 +172,27 @@ const EventsPage = () => {
           <select
             name="price"
             onChange={handleFilterChange}
+            value={filters.price}
             className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
           >
             <option value="">Price</option>
             <option value="free">Free</option>
             <option value="paid">Paid</option>
           </select>
+
+          <button
+            onClick={handleClearFilters}
+            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          >
+            Clear Filters
+          </button>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {paginatedEvents.length === 0 ? (
+        {error ? (
+          <p className="text-center text-gray-500">{error}</p>
+        ) : paginatedEvents.length === 0 ? (
           <p className="text-center text-gray-500">
             No events match your filters.
           </p>
@@ -172,6 +203,9 @@ const EventsPage = () => {
                 key={event.id}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
               >
+                {loading && event.id === paginatedEvents[0].id && (
+                  <Loading />
+                )}
                 <div className="relative h-48">
                   <img
                     src={event.image}
@@ -179,7 +213,7 @@ const EventsPage = () => {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm">
-                    ₦{(event.price?.regular || 0).toLocaleString()}{" "}
+                    {event.price?.regular === 0 ? "Free" : `₦${(event.price?.regular || 0).toLocaleString()}`}
                   </div>
                 </div>
                 <div className="p-6">

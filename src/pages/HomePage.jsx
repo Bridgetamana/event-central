@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Users, Star } from "lucide-react";
+import { Calendar, MapPin, Star } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { getFeaturedEvents } from "../config/eventStore";
 import Loading from "../components/ui/Loading";
+import PageLoader from "../components/ui/PageLoader";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -12,11 +13,6 @@ const HomePage = () => {
   const [featuredEvents, setFeaturedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [stats, setStats] = useState({
-    events: 5000,
-    organizers: 200,
-    attendees: 10000,
-  });
 
   useEffect(() => {
     const loadFeaturedEvents = async () => {
@@ -64,7 +60,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
-
+      {loading && <PageLoader />}
       <section className="relative min-h-screen pt-32 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -90,17 +86,17 @@ const HomePage = () => {
               {[
                 {
                   label: "Successful Events",
-                  value: stats.events,
+                  value: 500,
                   suffix: "+",
                 },
                 {
                   label: "Professional Organizers",
-                  value: stats.organizers,
+                  value: 500,
                   suffix: "+",
                 },
                 {
                   label: "Satisfied Attendees",
-                  value: stats.attendees,
+                  value: 10000,
                   suffix: "+",
                 },
               ].map((stat, index) => (
