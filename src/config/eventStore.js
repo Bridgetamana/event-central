@@ -112,6 +112,37 @@ export const searchEvents = async (searchTerm) => {
   }
 };
 
+// Function to get Featured events
+export const getFeaturedEvents = async () => {
+  try {
+    const eventsRef = collection(db, 'events');
+    const q = query(
+      eventsRef, 
+      where('featured', '==', true),
+      orderBy('date', 'asc'),
+
+    );
+    
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title,
+        date: data.date?.toDate().toLocaleDateString(),
+        location: data.location,
+        category: data.category,
+        attendees: `${(data.totalAttendees || 0).toLocaleString()}+`,
+        price: data.price?.regular || 0,
+        image: data.image || '/default-event-image.jpg' // Provide a default image
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching featured events:', error);
+    throw error;
+  }
+};
+
 // Function to create a new ticket order
 export const createTicketOrder = async (orderData) => {
   try {

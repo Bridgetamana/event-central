@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Calendar, MapPin, Users, Star } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { getFeaturedEvents } from "../config/eventStore";
+import Loading from "../components/ui/Loading";
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("home");
   const [hoveredEvent, setHoveredEvent] = useState(null);
+  const [featuredEvents, setFeaturedEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [stats, setStats] = useState({
     events: 0,
     organizers: 0,
@@ -13,18 +19,25 @@ const HomePage = () => {
   });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setStats((prev) => ({
-        events: prev.events < 1000 ? prev.events + 50 : prev.events,
-        organizers:
-          prev.organizers < 500 ? prev.organizers + 25 : prev.organizers,
-        attendees:
-          prev.attendees < 50000 ? prev.attendees + 2500 : prev.attendees,
-      }));
-    }, 50);
+    const loadFeaturedEvents = async () => {
+      try {
+        setLoading(true);
+        const events = await getFeaturedEvents();
+        setFeaturedEvents(events);
+      } catch (err) {
+        setError("Failed to load featured events");
+        console.error("Error loading featured events:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearInterval(interval);
+    loadFeaturedEvents();
   }, []);
+
+  const handleViewDetails = (eventId) => {
+    navigate(`/event/${eventId}`);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,6 +61,20 @@ const HomePage = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (loading) {
+    return (
+      <Loading />
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
@@ -136,40 +163,9 @@ const HomePage = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Web3 Innovation Summit",
-                date: "June 15-16, 2024",
-                location: "PH, Nigeria",
-                category: "Technology",
-                attendees: "3K+",
-                price: "NGN200000",
-                image:
-                  "https://img.freepik.com/free-psd/club-dj-party-flyer-social-media-post_505751-3514.jpg?t=st=1730859298~exp=1730862898~hmac=68266eb9fb184fc105716845c06b187a9f685b5f5a98adc839fd4a285d1426a8&w=740",
-              },
-              {
-                title: "Sustainable Fashion Week",
-                date: "July 8-12, 2024",
-                location: "Lagos, Nigeria",
-                category: "Fashion",
-                attendees: "5K+",
-                price: "NGN12000",
-                image:
-                  "https://img.freepik.com/free-psd/club-dj-party-flyer-social-media-post_505751-3514.jpg?t=st=1730859298~exp=1730862898~hmac=68266eb9fb184fc105716845c06b187a9f685b5f5a98adc839fd4a285d1426a8&w=740",
-              },
-              {
-                title: "Global AI Conference",
-                date: "August 3-5, 2024",
-                location: "Abuja",
-                category: "Technology",
-                attendees: "2.5K+",
-                price: "$49",
-                image:
-                  "https://img.freepik.com/free-psd/club-dj-party-flyer-social-media-post_505751-3514.jpg?t=st=1730859298~exp=1730862898~hmac=68266eb9fb184fc105716845c06b187a9f685b5f5a98adc839fd4a285d1426a8&w=740",
-              },
-            ].map((event, index) => (
+            {featuredEvents.map((event, index) => (
               <motion.div
-                key={event.title}
+                key={event.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -185,11 +181,6 @@ const HomePage = () => {
                     className="object-cover w-full h-full"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute top-4 left-4">
-                    <span className="inline-block px-3 py-1 rounded-full bg-white/90 text-indigo-600 text-sm font-medium">
-                      {event.category}
-                    </span>
-                  </div>
                 </div>
 
                 <div className="p-6">
@@ -206,17 +197,19 @@ const HomePage = () => {
                       <MapPin className="w-4 h-4 mr-2 text-indigo-600" />
                       {event.location}
                     </div>
-                    <div className="flex items-center text-zinc-600">
-                      <Users className="w-4 h-4 mr-2 text-indigo-600" />
-                      {event.attendees} Expected
-                    </div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-indigo-600">
-                      {event.price}
+                    <span className="text-lg font-semibold text-indigo-600">
+                      {typeof event.price === "number"
+                        ? event.price === 0
+                          ? "Free"
+                          : `NGN${event.price.toLocaleString()}`
+                        : event.price}
                     </span>
-                    <button className="px-4 py-2 rounded-lg bg-indigo-50 text-indigo-600 font-medium hover:bg-indigo-100 transition-colors">
+                    <button
+                    onClick={() => handleViewDetails(event.id)} 
+                    className="px-4 py-2 rounded-lg bg-indigo-50 text-indigo-600 font-medium hover:bg-indigo-100 transition-colors">
                       Get Tickets
                     </button>
                   </div>
