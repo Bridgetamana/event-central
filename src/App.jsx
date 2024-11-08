@@ -5,6 +5,8 @@ import EventDetailPage from "./pages/EventDetailPage";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import CheckoutPage from "./pages/CheckoutPage";
+import AboutPage from "./pages/AboutPage";
+import NotFound from "./pages/NotFound";
 import { ToastContainer } from 'react-toastify';
 
 const App = () => {
@@ -15,8 +17,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/events" element={<EventPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/event/:id" element={<EventDetailPage />} />
         <Route path="/checkout/:id" element={<CheckoutPage />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
     </Router>
