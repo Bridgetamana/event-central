@@ -13,9 +13,9 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState({
-    events: 0,
-    organizers: 0,
-    attendees: 0,
+    events: 5000,
+    organizers: 200,
+    attendees: 10000,
   });
 
   useEffect(() => {
@@ -61,20 +61,6 @@ const HomePage = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  if (loading) {
-    return (
-      <Loading />
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-red-600">{error}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
@@ -162,7 +148,14 @@ const HomePage = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {loading ? (
+            <Loading />
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-red-600">{error}</p>
+            </div>
+          ) : ( 
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredEvents.map((event, index) => (
               <motion.div
                 key={event.id}
@@ -217,6 +210,8 @@ const HomePage = () => {
               </motion.div>
             ))}
           </div>
+           )}
+          
         </div>
       </section>
 
