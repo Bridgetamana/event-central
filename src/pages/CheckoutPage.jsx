@@ -39,13 +39,13 @@ const CheckoutPage = () => {
     phone: ''
   });
 
-  const [errors, setErrors] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    tickets: '',
-  });
+  // const [errors, setErrors] = useState({
+  //   firstName: '',
+  //   lastName: '',
+  //   email: '',
+  //   phone: '',
+  //   tickets: '',
+  // });
 
   const steps = [
     { number: 1, title: "Tickets" },
@@ -54,7 +54,7 @@ const CheckoutPage = () => {
   ];
 
   const calculateTotal = () => {
-    const subtotal = (ticketSelection.regular * event.price.regular) + (ticketSelection.vip * event.price.vip);
+    const subtotal = (ticketSelection.regular * event.price.regular) + (ticketSelection.vip * event.price.vip) + (ticketSelection.premium * event.price.premium);
     const serviceFee = subtotal * 0.037;
     const discountAmount = (subtotal + serviceFee) * (discount / 100);
     return { subtotal, serviceFee, discount: discountAmount, total: subtotal + serviceFee - discountAmount,
