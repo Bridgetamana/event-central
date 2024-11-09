@@ -2,8 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import EventPage from "./pages/EventPage";
 import EventDetailPage from "./pages/EventDetailPage";
-import Navbar from "./components/layout/Navbar";
-import Footer from "./components/layout/Footer";
 import CheckoutPage from "./pages/CheckoutPage";
 import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
@@ -15,7 +13,6 @@ const App = () => {
   return (
     <Router>
       <ToastContainer />
-      <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/events" element={<EventPage />} />
@@ -26,7 +23,6 @@ const App = () => {
         <Route path="/checkout/:id" element={<CheckoutPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Footer />
     </Router>
   );
 };
