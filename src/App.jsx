@@ -8,6 +8,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 import { ToastContainer } from 'react-toastify';
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 const App = () => {
   return (
@@ -18,6 +20,8 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/events" element={<EventPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/event/:id" element={<EventDetailPage />} />
         <Route path="/checkout/:id" element={<CheckoutPage />} />
         <Route path="*" element={<NotFound />} />

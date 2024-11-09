@@ -1,11 +1,59 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { login } from "../config/auth";
+import { showToast } from "../utils/toast";
+import ButtonSpinner from "../components/ui/ButtonSpinner";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const validateForm = () => {
+    let isValid = true;
+    
+    setEmailError("");
+    setPasswordError("");
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address");
+      isValid = false;
+    }
+
+    if (password.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      showToast.error('Please fix the errors in the form');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await login(email, password);
+      showToast.success(result.message);
+      navigate('/');
+    } catch (error) {
+      showToast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen pt-24 bg-gradient-to-b from-indigo-50 to-white flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -21,10 +69,10 @@ const LoginPage = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6">
+        <form onSubmit={handleLogin} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-zinc-600 mb-1">
                 Email address
               </label>
               <input
@@ -32,10 +80,18 @@ const LoginPage = () => {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none relative block w-full px-3 py-2 border border-zinc-300 rounded-lg placeholder-zinc-500 text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError("");
+                }}
+                className={`appearance-none relative block w-full px-3 py-2 border ${
+                  emailError ? 'border-red-500' : 'border-zinc-300'
+                } rounded-lg placeholder-zinc-500 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500`}
                 placeholder="Enter your email"
               />
+              {emailError && (
+                <p className="mt-1 text-sm text-red-600">{emailError}</p>
+              )}
             </div>
 
             <div>
@@ -48,8 +104,13 @@ const LoginPage = () => {
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-2 border border-zinc-300 rounded-lg placeholder-zinc-500 text-zinc-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordError("");
+                  }}
+                  className={`appearance-none relative block w-full px-3 py-2 border ${
+                    passwordError ? 'border-red-500' : 'border-zinc-300'
+                  } rounded-lg placeholder-zinc-500 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -64,22 +125,27 @@ const LoginPage = () => {
                   )}
                 </button>
               </div>
+              {passwordError && (
+                <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+              )}
             </div>
-          </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <div className="text-right">
+              <Link 
+                to="/forgot-password" 
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              >
                 Forgot your password?
-              </a>
+              </Link>
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 transition-all"
+            disabled={loading}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Sign in
+            {loading ? <ButtonSpinner /> : "Sign in"}
           </button>
 
           <div className="text-center">

@@ -4,7 +4,6 @@ import { Calendar, MapPin, Star } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { getFeaturedEvents } from "../config/eventStore";
 import Loading from "../components/ui/Loading";
-import PageLoader from "../components/ui/PageLoader";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -60,7 +59,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
-      {loading && <PageLoader />}
       <section className="relative min-h-screen pt-32 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
