@@ -86,7 +86,7 @@ const HomePage = () => {
               {[
                 {
                   label: "Successful Events",
-                  value: 500,
+                  value: 1000,
                   suffix: "+",
                 },
                 {
@@ -96,7 +96,7 @@ const HomePage = () => {
                 },
                 {
                   label: "Satisfied Attendees",
-                  value: 10000,
+                  value: 50000,
                   suffix: "+",
                 },
               ].map((stat, index) => (
@@ -208,6 +208,20 @@ const HomePage = () => {
           </div>
            )}
           
+          <div className="mt-12 flex flex-wrap justify-center gap-4">
+            {[
+              "Music", "Tech", "Business", "Food", "Arts", "Sports", "Education", "Wellness"
+            ].map((category) => (
+              <motion.button
+                key={category}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 rounded-full border border-indigo-200 text-indigo-700 hover:bg-indigo-50 transition-colors"
+              >
+                {category}
+              </motion.button>
+            ))}
+          </div>
         </div>
       </section>
 
