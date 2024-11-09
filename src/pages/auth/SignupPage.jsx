@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { signupUser } from "../config/auth";
-import { showToast } from "../utils/toast";
-import ButtonSpinner from "../components/ui/ButtonSpinner";
+import { signupUser } from "../../config/auth";
+import { showToast } from "../../utils/toast";
+import ButtonSpinner from "../../components/ui/ButtonSpinner";
 
 const SignupPage = () => {
   const navigate = useNavigate();

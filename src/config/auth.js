@@ -1,5 +1,4 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
-updateProfile } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 
 // Add new user
 export const signupUser = async (email, password, firstName, lastName) => {
@@ -63,3 +62,33 @@ export const login = async (email, password) => {
       throw new Error(errorMessage);
     }
   };
+
+  // Reset password
+export const resetPassword = async (email) => {
+  const auth = getAuth();
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return {
+      success: true,
+      message: 'Password reset email sent successfully!'
+    };
+  } catch (error) {
+    let errorMessage = 'Failed to send reset email';
+    
+    switch (error.code) {
+      case 'auth/user-not-found':
+        errorMessage = 'No account found with this email';
+        break;
+      case 'auth/invalid-email':
+        errorMessage = 'Invalid email address';
+        break;
+      case 'auth/too-many-requests':
+        errorMessage = 'Too many requests. Please try again later';
+        break;
+      default:
+        errorMessage = error.message;
+    }
+
+    throw new Error(errorMessage);
+  }
+};
