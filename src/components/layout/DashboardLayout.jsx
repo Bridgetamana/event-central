@@ -25,8 +25,8 @@ const DashboardLayout = () => {
     {
       section: "MAIN",
       items: [
-        { id: "dashboard", label: "Dashboard", icon: BarChart3, path: "" },
-        { id: "events", label: "Events", icon: Calendar },
+        { id: "dashboard", label: "Dashboard", icon: BarChart3, path: "/dashboard/user-dashboard" },
+        { id: "events", label: "Events", icon: Calendar, path: "/dashboard/event"},
         { id: "attendees", label: "Attendees", icon: Users },
       ],
     },
