@@ -13,6 +13,7 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/dashboard/Dashboard";
 import CreateEvent from "./pages/dashboard/CreateEvent";
 import Events from "./pages/dashboard/Events";
+import Settings from "./pages/Settings";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="user-dashboard" element={<Dashboard />} />
           <Route path="event" element={<Events />} />
           <Route path="create-event" element={<CreateEvent />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

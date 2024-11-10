@@ -147,7 +147,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="bg-green-100 p-6 rounded-lg">
-              <h3 className="font-semibold text-green-900">Today's Sales</h3>
+              <h3 className="font-semibold text-green-900">Today&apos;s Sales</h3>
               <p className="text-2xl font-bold text-green-700 mt-1">$1,248</p>
               <p className="text-sm text-green-600 mt-1">28 tickets sold today</p>
             </div>

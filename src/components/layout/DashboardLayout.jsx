@@ -27,15 +27,15 @@ const DashboardLayout = () => {
       items: [
         { id: "dashboard", label: "Dashboard", icon: BarChart3, path: "/dashboard/user-dashboard" },
         { id: "events", label: "Events", icon: Calendar, path: "/dashboard/event"},
-        { id: "attendees", label: "Attendees", icon: Users },
+        { id: "attendees", label: "Attendees", icon: Users, path: "/dashboard/attendees" },
       ],
     },
     {
       section: "MANAGEMENT",
       items: [
-        { id: "analytics", label: "Analytics", icon: FileText },
-        { id: "billing", label: "Billing", icon: CreditCard },
-        { id: "settings", label: "Settings", icon: Settings },
+        { id: "analytics", label: "Analytics", icon: FileText, path: "/dashboard/analytics" },
+        { id: "billing", label: "Billing", icon: CreditCard, path: "/dashboard/billing" },
+        { id: "settings", label: "Settings", icon: Settings, path: "/dashboard/settings" },
       ],
     },
     {
