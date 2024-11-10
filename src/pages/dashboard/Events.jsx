@@ -4,6 +4,7 @@ import {
   Clock, MapPin, Users, 
   MoreVertical, Tag, Globe 
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Events = () => {
   const [events, setEvents] = useState([
@@ -60,13 +61,13 @@ const Events = () => {
           <>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <h1 className="text-2xl font-bold text-gray-900">Your Events</h1>
-              <a
-                href="/events/create"
+              <Link
+                to="/dashboard/create-event"
                 className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-sm hover:shadow-md"
               >
                 <PlusSquare className="w-5 h-5 mr-2" />
                 Create New Event
-              </a>
+              </Link>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">

@@ -70,12 +70,13 @@ const DashboardLayout = () => {
         </div>
 
         <div className="p-4">
-          <button className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all mb-6">
-            <div className="flex items-center justify-center space-x-2">
-              <PlusSquare className="w-4 h-4" />
-              <span className="font-medium">Create Event</span>
-            </div>
-          </button>
+          <Link
+            to="/dashboard/create-event"
+            className="inline-flex items-center justify-center gap-1 w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all mb-6"
+          >
+            <PlusSquare className="w-4 h-4" />
+            Create Event
+          </Link>
 
           <nav className="space-y-6">
             {sidebarItems.map((section) => (
@@ -105,9 +106,7 @@ const DashboardLayout = () => {
         </div>
       </aside>
 
-      <div
-        className="transition-all duration-300 lg:ml-60"
-      >
+      <div className="transition-all duration-300 lg:ml-60">
         <header className="sticky top-0 z-20 bg-white border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-4 lg:px-8">
             <div className="flex-1 flex items-center space-x-4">
