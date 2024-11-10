@@ -9,6 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import DashboardLayout from "./components/layout/DashboardLayout";
 
 const App = () => {
   return (
@@ -23,6 +24,8 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/event/:id" element={<EventDetailPage />} />
         <Route path="/checkout/:id" element={<CheckoutPage />} />
+        <Route path="/dashboard" element={<DashboardLayout />}>
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

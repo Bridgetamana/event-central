@@ -47,7 +47,7 @@ const LoginPage = () => {
     try {
       const result = await login(email, password);
       showToast.success(result.message);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       showToast.error(error.message);
     } finally {
