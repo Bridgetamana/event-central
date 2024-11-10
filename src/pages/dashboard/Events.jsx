@@ -163,12 +163,12 @@ const Events = () => {
                           <Users className="w-4 h-4 mr-2" />
                           {event.ticketsSold}/{event.totalTickets} tickets sold
                         </div>
-                        <a
-                          href='//'
+                        <Link
+                          to={`/dashboard/organizer-events/${event.id}`}
                           className="text-indigo-600 text-sm font-medium hover:text-indigo-700"
                         >
                           View Details
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </div>

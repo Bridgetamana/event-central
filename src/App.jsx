@@ -14,6 +14,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import CreateEvent from "./pages/dashboard/CreateEvent";
 import Events from "./pages/dashboard/Events";
 import Settings from "./pages/Settings";
+import EventDetails from "./pages/dashboard/EventDetails";
 
 const App = () => {
   return (
@@ -34,6 +35,7 @@ const App = () => {
           <Route path="event" element={<Events />} />
           <Route path="create-event" element={<CreateEvent />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="organizer-events/:id" element={<EventDetails />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
