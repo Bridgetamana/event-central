@@ -112,10 +112,14 @@ const Navbar = () => {
               )
             )}
             <button className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-              Log in
+              <Link to="/login">
+                Log in
+              </Link>
             </button>
             <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-              Get Started
+              <Link to="/signup">
+                Get Started
+              </Link>
             </button>
           </div>
         )}
