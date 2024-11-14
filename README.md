@@ -1,8 +1,15 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# EventHub
 
-Currently, two official plugins are available:
+EventHub is a comprehensive event management and ticketing platform designed to simplify the process of creating, managing, and promoting events. It provides a seamless experience for both event organizers and attendees.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- React + Vite
+- Firebase
+- React Hook Form
+- Tailwind CSS
+- Framer Motion
+- Lucide React
+
+## Demo
+https://event-central.vercel.app/
