@@ -1,8 +1,11 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 // Add new user
 export const signupUser = async (email, password, firstName, lastName) => {
   const auth = getAuth();
+  const db = getFirestore();
+  
   try {
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -10,8 +13,21 @@ export const signupUser = async (email, password, firstName, lastName) => {
       displayName: `${firstName} ${lastName}`,
     });
 
+    const userDocRef = doc(db, 'users', user.uid);
+    await setDoc(userDocRef, {
+      firstName,
+      lastName,
+      email,
+      displayName: `${firstName} ${lastName}`,
+    });
+
     return {
       success: true,
+      user: {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName
+      },
       message: 'Account created successfully!'
     };
   } catch (error) {
@@ -35,11 +51,24 @@ export const signupUser = async (email, password, firstName, lastName) => {
 // Sign in user 
 export const login = async (email, password) => {
     const auth = getAuth();
+    const db = getFirestore();
+
     try {
       const { user } = await signInWithEmailAndPassword(auth, email, password);
+      
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      const userData = userDoc.exists() ? userDoc.data() : {};
+
       return {
         success: true,
-        user,
+        user: {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          ...userData 
+        },
         message: 'Logged in successfully!'
       };
     } catch (error) {
