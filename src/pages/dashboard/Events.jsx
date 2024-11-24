@@ -33,12 +33,25 @@ const Events = () => {
     }
   ]);
 
+  const [searchTerm, setSearchTerm] = useState('');
   const [filterView, setFilterView] = useState('all');
+
+  const handleSearch = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+  };
+
+  const filteredEvents = events.filter((event) => {
+    const matchesSearch = event.name.toLowerCase().includes(searchTerm);
+    const matchesFilter =
+      filterView === "all" || event.status.toLowerCase() === filterView;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {events.length === 0 ? (
+        {filteredEvents.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
             <div className="w-20 h-20 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto">
               <Calendar className="w-10 h-10 text-indigo-600" />
@@ -48,13 +61,13 @@ const Events = () => {
               Create your first event and start selling tickets to your audience.
             </p>
             <div className="mt-8">
-              <a
-                href="/events/create"
+              <Link
+                to="/dashboard/create-event"
                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
               >
                 <PlusSquare className="w-5 h-5 mr-2" />
                 Create New Event
-              </a>
+              </Link>
             </div>
           </div>
         ) : (
@@ -77,35 +90,37 @@ const Events = () => {
                   type="text"
                   placeholder="Search events..."
                   className="pl-10 w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  value={searchTerm}
+                  onChange={handleSearch}
                 />
               </div>
               <div className="flex gap-1">
                 <button
-                  onClick={() => setFilterView('all')}
+                  onClick={() => setFilterView("all")}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    filterView === 'all' 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                    filterView === "all"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   All Events
                 </button>
                 <button
-                  onClick={() => setFilterView('published')}
+                  onClick={() => setFilterView("published")}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    filterView === 'active' 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                    filterView === "published"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   Published
                 </button>
                 <button
-                  onClick={() => setFilterView('draft')}
+                  onClick={() => setFilterView("draft")}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    filterView === 'draft' 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                    filterView === "draft"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   Drafts
@@ -114,7 +129,7 @@ const Events = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {events.map((event) => (
+              {filteredEvents.map((event) => (
                 <div 
                   key={event.id}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
@@ -123,7 +138,13 @@ const Events = () => {
                     <div className="flex justify-between items-start">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <span className={`bg-green-100 text-green-800 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium `}>
+                          <span
+                            className={`${
+                              event.status === "Published"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            } inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium`}
+                          >
                             {event.status}
                           </span>
                           <button className="text-gray-400 hover:text-gray-600">
