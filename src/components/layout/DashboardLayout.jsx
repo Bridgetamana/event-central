@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Calendar,
   Users,
@@ -13,13 +13,118 @@ import {
   FileText,
   CreditCard,
   HelpCircle,
+  LogOut,
+  User,
 } from "lucide-react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import Logo from "../ui/Logo";
 
 const DashboardLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [activeNavItem, setActiveNavItem] = useState("dashboard");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
+
+  const notifications = [
+    {
+      id: 1,
+      title: "New Event Registration",
+      message: "John Doe registered for your event",
+      time: "5m ago",
+    },
+    {
+      id: 2,
+      title: "Payment Received",
+      message: "Payment of ₦5000 received for Event ",
+      time: "1h ago",
+    },
+  ];
+
+  const auth = getAuth();
+  const db = getFirestore();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setUserData(userDoc.data());
+          } else {
+            console.log("User document not found.");
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        console.log("No authenticated user.");
+      }
+    };
+  
+    fetchUserData();
+  }, [auth, db]);
+  
+
+  const getInitials = () => {
+    if (userData?.firstName && userData?.lastName) {
+      return `${userData.firstName[0]}${userData.lastName[0]}`;
+    }
+    return '';
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  const handleNavItemClick = (itemId) => {
+    setActiveNavItem(itemId);
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  };
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+    setShowProfileMenu(false);
+  };
+
+  const toggleProfileMenu = () => {
+    setShowProfileMenu(!showProfileMenu);
+    setShowNotifications(false);
+  };
+
+  const handleClickOutside = (e) => {
+    if (
+      !e.target.closest(".notification-dropdown") &&
+      !e.target.closest(".notification-button")
+    ) {
+      setShowNotifications(false);
+    }
+    if (
+      !e.target.closest(".profile-dropdown") &&
+      !e.target.closest(".profile-button")
+    ) {
+      setShowProfileMenu(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const sidebarItems = [
     {
@@ -88,7 +193,7 @@ const DashboardLayout = () => {
                   <Link
                     to={item.path}
                     key={item.id}
-                    onClick={() => setActiveNavItem(item.id)}
+                    onClick={() => handleNavItemClick(item.id)}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition-all
                       ${
                         activeNavItem === item.id
@@ -124,14 +229,82 @@ const DashboardLayout = () => {
               <button className="lg:hidden p-2 text-gray-500 hover:text-gray-600 rounded-lg hover:bg-gray-50">
                 <Search className="w-5 h-5" />
               </button>
-              <button className="relative p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-              </button>
 
-              <div className="flex items-center space-x-3 border-l pl-4 cursor-pointer">
-                <p>JD</p>
-                <ChevronDown className="w-4 h-4 text-gray-500" />
+              <div className="relative">
+                <button
+                  onClick={toggleNotifications}
+                  className="notification-button relative p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50">
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                </button>
+
+                {showNotifications && (
+                  <div className="notification-dropdown absolute right-[-50px] mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <h3 className="font-semibold text-gray-900">
+                        Notifications
+                      </h3>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                            <p className="font-medium text-sm text-gray-900">
+                              {notification.title}
+                            </p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {notification.time}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-6 text-center">
+                          <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500">No notifications yet</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative">
+                <div
+                  onClick={toggleProfileMenu}
+                  className="profile-button flex items-center space-x-3 border-l pl-4 cursor-pointer"
+                >
+                  <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium text-indigo-600">
+                      {getInitials()}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                </div>
+
+                {showProfileMenu && (
+                  <div className="profile-dropdown absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
+                    <Link
+                      to="/dashboard/profile"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
