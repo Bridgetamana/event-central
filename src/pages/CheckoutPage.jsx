@@ -1,8 +1,28 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Calendar, MapPin, X, Check, CreditCard, ChevronRight, ChevronLeft } from "lucide-react";
+import { PaystackButton } from "react-paystack";
+
 import { showToast } from "../utils/toast";
 
 const CheckoutPage = () => {
+  const {
+    register,
+    watch,
+    trigger,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    },
+    mode: "onSubmit",
+  });
+
+  const formValues = watch();
+
   const [currentStep, setCurrentStep] = useState(1);
   const [event, setEvent] = useState({
     title: "Event",
@@ -21,58 +41,71 @@ const CheckoutPage = () => {
       premium: 20,
     },
   });
-  
   const [ticketSelection, setTicketSelection] = useState({
     regular: 0,
     vip: 0,
     premium: 0,
   });
-
   const [promoCode, setPromoCode] = useState("");
   const [promoCodeStatus, setPromoCodeStatus] = useState(null);
   const [discount, setDiscount] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: ''
-  });
+  const calculateTotal = () => {
+    const subtotal = ticketSelection.regular * event.price.regular +
+      ticketSelection.vip * event.price.vip +
+      ticketSelection.premium * event.price.premium;
+    const serviceFee = subtotal * 0.037;
+    const discountAmount = (subtotal + serviceFee) * (discount / 100);
+    return {
+      subtotal,
+      serviceFee,
+      discount: discountAmount,
+      total: subtotal + serviceFee - discountAmount,
+    };
+  };
 
-  // const [errors, setErrors] = useState({
-  //   firstName: '',
-  //   lastName: '',
-  //   email: '',
-  //   phone: '',
-  //   tickets: '',
-  // });
+  const formValidation = {
+    firstName: {
+      required: "First name is required",
+      minLength: {
+        value: 2,
+        message: "First name must be at least 2 characters long",
+      },
+    },
+    lastName: {
+      required: "Last name is required",
+      minLength: {
+        value: 2,
+        message: "Last name must be at least 2 characters long",
+      },
+    },
+    email: {
+      required: "Email is required",
+      pattern: {
+        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+        message: "Invalid email address",
+      },
+    },
+    phone: {
+      required: "Phone number is required",
+      pattern: {
+        value: /^[0-9]{10,14}$/,
+        message: "Phone number must be 10-14 digits",
+      },
+    },
+  };
 
   const steps = [
     { number: 1, title: "Tickets" },
     { number: 2, title: "Contact" },
-    { number: 3, title: "Payment" }
+    { number: 3, title: "Payment" },
   ];
 
-  const calculateTotal = () => {
-    const subtotal = (ticketSelection.regular * event.price.regular) + (ticketSelection.vip * event.price.vip) + (ticketSelection.premium * event.price.premium);
-    const serviceFee = subtotal * 0.037;
-    const discountAmount = (subtotal + serviceFee) * (discount / 100);
-    return { subtotal, serviceFee, discount: discountAmount, total: subtotal + serviceFee - discountAmount,
-    };
-  };
-
   const handleTicketChange = (type, action) => {
-    setTicketSelection(prev => ({
+    setTicketSelection((prev) => ({
       ...prev,
-      [type]: Math.max(0, prev[type] + (action === 'increase' ? 1 : -1))
-    }));
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
+      [type]: Math.max(0, prev[type] + (action === "increase" ? 1 : -1)),
     }));
   };
 
@@ -94,14 +127,82 @@ const CheckoutPage = () => {
     }
   };
 
-  const canProceed = () => {
+  const canProceed = async () => {
     if (currentStep === 1) {
-      return (ticketSelection.regular > 0 || ticketSelection.vip > 0);
+      return (
+        ticketSelection.regular > 0 ||
+        ticketSelection.vip > 0 ||
+        ticketSelection.premium > 0
+      );
     }
+
     if (currentStep === 2) {
-      return Object.values(formData).every(value => value.trim() !== '');
+      const isValid = await trigger();
+
+      if (!isValid) {
+        showToast.error("Please correct the errors in the form");
+        return false;
+      }
+      return true;
     }
     return true;
+  };
+
+  const handleContinue = async () => {
+    const proceed = await canProceed();
+    if (proceed) {
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
+
+  const handlePaystackSuccess = (reference) => {
+    setIsProcessing(false);
+    showToast.success("Payment successful!");
+    console.log("Payment reference:", reference);
+  };
+
+  const handlePaystackClose = () => {
+    setIsProcessing(false);
+    showToast.error("Payment cancelled");
+  };
+
+  const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+
+  const initializePayment = () => {
+    const total = calculateTotal();
+    const amountInKobo = Math.round(total.total * 100);
+
+    return {
+      email: formValues.email,
+      amount: amountInKobo,
+      publicKey: PAYSTACK_PUBLIC_KEY,
+      firstname: formValues.firstName,
+      lastname: formValues.lastName,
+      phone: formValues.phone,
+      label: `Tickets for ${event.title}`,
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Ticket Details",
+            variable_name: "ticket_details",
+            value: JSON.stringify({
+              regular: ticketSelection.regular,
+              vip: ticketSelection.vip,
+              premium: ticketSelection.premium,
+              event: event.title,
+              date: event.date,
+            }),
+          },
+        ],
+      },
+    };
+  };
+
+  const paystackButtonProps = {
+    ...initializePayment(),
+    text: "Pay Now",
+    onSuccess: handlePaystackSuccess,
+    onClose: handlePaystackClose,
   };
 
   return (
@@ -243,62 +344,93 @@ const CheckoutPage = () => {
                 </div>
               )}
 
-              {currentStep === 2 && (
-                <div className="space-y-6">
-                  <h2 className="text-xl font-semibold">Contact Information</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        First Name
-                      </label>
-                      <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Phone
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                      />
+              <form>
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-semibold">
+                      Contact Information
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          {...register("firstName", formValidation.firstName)}
+                          className={`w-full p-2 border rounded-lg focus:ring-2 ${
+                            errors.firstName
+                              ? "border-red-500 focus:ring-red-300"
+                              : "focus:ring-indigo-500 focus:border-transparent"
+                          }`}
+                        />
+                        {errors.firstName && (
+                          <div className="text-red-500 text-sm mt-1">
+                            {errors.firstName.message}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          {...register("lastName", formValidation.lastName)}
+                          className={`w-full p-2 border rounded-lg focus:ring-2 ${
+                            errors.lastName
+                              ? "border-red-500 focus:ring-red-300"
+                              : "focus:ring-indigo-500 focus:border-transparent"
+                          }`}
+                        />
+                        {errors.lastName && (
+                          <div className="text-red-500 text-sm mt-1">
+                            {errors.lastName.message}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          {...register("email", formValidation.email)}
+                          className={`w-full p-2 border rounded-lg focus:ring-2 ${
+                            errors.email
+                              ? "border-red-500 focus:ring-red-300"
+                              : "focus:ring-indigo-500 focus:border-transparent"
+                          }`}
+                        />
+                        {errors.email && (
+                          <div className="text-red-500 text-sm mt-1">
+                            {errors.email.message}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone
+                        </label>
+                        <input
+                          type="tel"
+                          {...register("phone", formValidation.phone)}
+                          className={`w-full p-2 border rounded-lg focus:ring-2 ${
+                            errors.phone
+                              ? "border-red-500 focus:ring-red-300"
+                              : "focus:ring-indigo-500 focus:border-transparent"
+                          }`}
+                        />
+                        {errors.phone && (
+                          <div className="text-red-500 text-sm mt-1">
+                            {errors.phone.message}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-
+                )}
+              </form>
               {currentStep === 3 && (
                 <div className="space-y-6">
                   <h2 className="text-xl font-semibold">Payment</h2>
@@ -317,30 +449,52 @@ const CheckoutPage = () => {
                 )}
                 {currentStep < steps.length && (
                   <button
-                    onClick={() =>
-                      canProceed() && setCurrentStep((prev) => prev + 1)
-                    }
-                    disabled={!canProceed()}
-                    className={`ml-auto flex items-center px-6 py-2 rounded-lg ${
-                      canProceed()
-                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    }`}
+                    onClick={handleContinue}
+                    className="ml-auto flex items-center px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
                   >
                     Continue
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </button>
                 )}
                 {currentStep === steps.length && (
-                  <button
-                    onClick={() => {
-                      console.log("ticket purchsed")
-                    }}
-                    className="ml-auto flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                  <PaystackButton
+                    {...paystackButtonProps}
+                    className="ml-auto flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    onSuccess={handlePaystackSuccess}
+                    onClose={handlePaystackClose}
+                    disabled={isProcessing}
                   >
-                    Pay Now
-                    <CreditCard className="w-4 h-4 ml-2" />
-                  </button>
+                    {isProcessing ? (
+                      <span className="flex items-center">
+                        Processing...
+                        <svg
+                          className="animate-spin ml-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        Pay Now
+                        <CreditCard className="w-4 h-4 ml-2" />
+                      </span>
+                    )}
+                  </PaystackButton>
                 )}
               </div>
             </div>

@@ -3,6 +3,7 @@ import { Calendar, DollarSign, Clock, MapPin, ChevronRight,
   Share2, Star, AlertCircle
 } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const upcomingEvents = [
@@ -35,16 +36,16 @@ const Dashboard = () => {
 
   return (
     <div>
-      {!hasEvents ? (
+      {hasEvents ? (
         <div className="text-center space-y-6 max-w-md mx-auto p-6">
           <div className="w-24 h-24 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto">
             <Calendar className="w-12 h-12 text-indigo-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Create Your First Event</h2>
           <p className="text-gray-600">Start by creating an event and watch your dashboard come to life with real-time analytics and insights.</p>
-          <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg">
+          <Link to="/dashboard/create-event" className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg">
             Create New Event
-          </button>
+          </Link>
         </div>
       ) : (
         <div className="space-y-6">
