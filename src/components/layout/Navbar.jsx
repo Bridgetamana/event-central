@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import Logo from "../ui/Logo";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const navLinks = [
     { name: "Browse Events", path: "/events", isRoute: true },
     { name: "Featured Event", section: "featured-event", isRoute: false },
@@ -18,12 +21,39 @@ const Navbar = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const navigateToSection = (section) => {
+    // Close mobile menu
+    setIsMobileMenuOpen(false);
+
+    // If we're not on the home page, navigate to home and scroll to section
+    if (location.pathname !== "/") {
+      navigate("/", { state: { scrollToSection: section } });
+    } else {
+      // If we're already on the home page, scroll to section
+      scrollToSection(section);
+    }
+  };
+
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  // Handle navigation state for scrolling
+  useEffect(() => {
+    const state = location.state;
+    if (state && state.scrollToSection) {
+      // Clear the state to prevent repeated scrolling
+      window.history.replaceState({}, document.title);
+      
+      // Scroll to the section after a short delay to ensure page load
+      setTimeout(() => {
+        scrollToSection(state.scrollToSection);
+      }, 100);
+    }
+  }, [location.state]);
 
   return (
     <nav className="fixed w-full backdrop-blur-sm bg-white/75 border-b border-indigo-100 z-50">
@@ -49,7 +79,7 @@ const Navbar = () => {
               ) : (
                 <button
                   key={link.name}
-                  onClick={() => scrollToSection(link.section)}
+                  onClick={() => navigateToSection(link.section)}
                   className="text-zinc-600 hover:text-indigo-600 transition-colors"
                 >
                   {link.name}
@@ -89,38 +119,38 @@ const Navbar = () => {
           <div className="md:hidden flex flex-col space-y-4 mt-4 bg-white p-4 rounded-lg shadow-lg">
             {navLinks.map((link) =>
               link.isRoute ? (
-                <button key={link.name}>
-                  <Link
-                    to={link.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-zinc-600 hover:text-indigo-600 transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </button>
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-zinc-600 hover:text-indigo-600 transition-colors"
+                >
+                  {link.name}
+                </Link>
               ) : (
                 <button
                   key={link.name}
-                  onClick={() => {
-                    scrollToSection(link.section);
-                    setIsMobileMenuOpen(false);
-                  }}
+                  onClick={() => navigateToSection(link.section)}
                   className="text-zinc-600 hover:text-indigo-600 transition-colors"
                 >
                   {link.name}
                 </button>
               )
             )}
-            <button className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-              <Link to="/login">
-                Log in
-              </Link>
-            </button>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-              <Link to="/signup">
-                Get Started
-              </Link>
-            </button>
+            <Link 
+              to="/login"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+            >
+              Log in
+            </Link>
+            <Link 
+              to="/signup"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Get Started
+            </Link>
           </div>
         )}
       </div>

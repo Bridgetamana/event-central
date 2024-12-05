@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getFeaturedEvents } from "../config/eventStore";
 import Loading from "../components/ui/Loading";
 import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/Footer"
+import Footer from "../components/layout/Footer";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -120,12 +120,18 @@ const HomePage = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium hover:from-indigo-600 hover:to-purple-600 transform hover:scale-105 transition-all">
+                <Link
+                  to="/signup"
+                  className="px-8 py-4 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium hover:from-indigo-600 hover:to-purple-600 transform hover:scale-105 transition-all"
+                >
                   Create Your Event
-                </button>
-                <button className="px-8 py-4 rounded-lg border-2 border-indigo-200 text-indigo-700 font-medium hover:bg-indigo-50 transform hover:scale-105 transition-all">
-                  <Link to="/events">Browse Events</Link>
-                </button>
+                </Link>
+                <Link
+                  to="/events"
+                  className="px-8 py-4 rounded-lg border-2 border-indigo-200 text-indigo-700 font-medium hover:bg-indigo-50 transform hover:scale-105 transition-all"
+                >
+                  Browse Events
+                </Link>
               </div>
             </div>
           </motion.div>
@@ -153,67 +159,75 @@ const HomePage = () => {
               <div className="text-center py-8">
                 <p className="text-red-600">{error}</p>
               </div>
-            ) : ( 
+            ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredEvents.map((event, index) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="group relative rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
-                  onMouseEnter={() => setHoveredEvent(index)}
-                  onMouseLeave={() => setHoveredEvent(null)}
-                >
-                  <div className="relative aspect-w-16 aspect-h-9">
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="object-cover w-full h-full"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  </div>
-
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-zinc-900 mb-2 group-hover:text-indigo-600 transition-colors">
-                      {event.title}
-                    </h3>
-
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center text-zinc-600">
-                        <Calendar className="w-4 h-4 mr-2 text-indigo-600" />
-                        {event.date}
-                      </div>
-                      <div className="flex items-center text-zinc-600">
-                        <MapPin className="w-4 h-4 mr-2 text-indigo-600" />
-                        {event.location}
-                      </div>
+                {featuredEvents.map((event, index) => (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="group relative rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                    onMouseEnter={() => setHoveredEvent(index)}
+                    onMouseLeave={() => setHoveredEvent(null)}
+                  >
+                    <div className="relative aspect-w-16 aspect-h-9">
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        className="object-cover w-full h-full"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-semibold text-indigo-600">
-                        {typeof event.price === "number"
-                          ? event.price === 0
-                            ? "Free"
-                            : `NGN${event.price.toLocaleString()}`
-                          : event.price}
-                      </span>
-                      <button
-                      onClick={() => handleViewDetails(event.id)} 
-                      className="px-4 py-2 rounded-lg bg-indigo-50 text-indigo-600 font-medium hover:bg-indigo-100 transition-colors">
-                        Get Tickets
-                      </button>
+                    <div className="p-6">
+                      <h3 className="text-xl font-semibold text-zinc-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        {event.title}
+                      </h3>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center text-zinc-600">
+                          <Calendar className="w-4 h-4 mr-2 text-indigo-600" />
+                          {event.date}
+                        </div>
+                        <div className="flex items-center text-zinc-600">
+                          <MapPin className="w-4 h-4 mr-2 text-indigo-600" />
+                          {event.location}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-semibold text-indigo-600">
+                          {typeof event.price === "number"
+                            ? event.price === 0
+                              ? "Free"
+                              : `NGN${event.price.toLocaleString()}`
+                            : event.price}
+                        </span>
+                        <button
+                          onClick={() => handleViewDetails(event.id)}
+                          className="px-4 py-2 rounded-lg bg-indigo-50 text-indigo-600 font-medium hover:bg-indigo-100 transition-colors"
+                        >
+                          Get Tickets
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
             )}
-            
+
             <div className="mt-12 flex flex-wrap justify-center gap-4">
               {[
-                "Music", "Tech", "Business", "Food", "Arts", "Sports", "Education", "Wellness"
+                "Music",
+                "Tech",
+                "Business",
+                "Food",
+                "Arts",
+                "Sports",
+                "Education",
+                "Wellness",
               ].map((category) => (
                 <motion.button
                   key={category}
@@ -427,8 +441,8 @@ const HomePage = () => {
                   ))}
                 </div>
                 <p className="text-zinc-600 text-md mb-4">
-                  Interested in customizing your event with add-ons? Get in touch
-                  with us.
+                  Interested in customizing your event with add-ons? Get in
+                  touch with us.
                 </p>
                 <button className="px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition-colors">
                   Contact Us
@@ -450,8 +464,8 @@ const HomePage = () => {
                 Stay in the Loop with Event Updates
               </h2>
               <p className="text-lg text-indigo-100 max-w-2xl mx-auto mb-8">
-                Subscribe to our newsletter to receive the latest news on upcoming
-                events, trends, and exclusive insights.
+                Subscribe to our newsletter to receive the latest news on
+                upcoming events, trends, and exclusive insights.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <input
@@ -466,7 +480,6 @@ const HomePage = () => {
             </motion.div>
           </div>
         </section>
-
       </div>
       <Footer />
     </div>
