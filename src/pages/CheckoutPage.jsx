@@ -132,16 +132,13 @@ const CheckoutPage = () => {
   const validatePromoCode = () => {
     const validPromoCodes = {
       EARLYBIRD: 10,
+      STUDENT: 20,
     };
 
     if (validPromoCodes[promoCode.toUpperCase()]) {
       setDiscount(validPromoCodes[promoCode.toUpperCase()]);
-      showToast.success(
-        `${validPromoCodes[promoCode.toUpperCase()]}% discount applied!`
-      );
       setPromoCodeStatus("success");
     } else {
-      showToast.error("Invalid promo code");
       setPromoCodeStatus("error");
       setDiscount(0);
     }
@@ -383,37 +380,55 @@ const CheckoutPage = () => {
                       </div>
                     )}
 
-                    <div className="mt-6">
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="text"
-                          value={promoCode}
-                          onChange={(e) =>
-                            setPromoCode(e.target.value.toUpperCase())
-                          }
-                          placeholder="Enter promo code"
-                          className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        />
-                        <button
-                          onClick={validatePromoCode}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                        >
-                          Apply
-                        </button>
+                    {calculateTotal().subtotal > 0 && (
+                      <div className="mt-6">
+                        <div className="mb-4">
+                          <h3 className="font-semibold">
+                            Available Promo Codes:
+                          </h3>
+                          <ul className="list-disc list-inside text-gray-700">
+                            <li>
+                              <strong>EARLYBIRD</strong> - 10% off
+                            </li>
+                            <li>
+                              <strong>STUDENT</strong> - 20% off
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            value={promoCode}
+                            onChange={(e) =>
+                              setPromoCode(e.target.value.toUpperCase())
+                            }
+                            placeholder="Enter promo code"
+                            className="w-full flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                          />
+                          <button
+                            onClick={validatePromoCode}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                          >
+                            Apply
+                          </button>
+                        </div>
+
+                        {promoCodeStatus === "success" && (
+                          <div className="flex items-center text-green-600 mt-2">
+                            <Check className="w-4 h-4 mr-2" />
+                            <span>{discount}% discount applied!</span>
+                          </div>
+                        )}
+
+                        {promoCodeStatus === "error" && (
+                          <div className="flex items-center text-red-600 mt-2">
+                            <X className="w-4 h-4 mr-2" />
+                            <span>Invalid promo code</span>
+                          </div>
+                        )}
                       </div>
-                      {promoCodeStatus === "success" && (
-                        <div className="flex items-center text-green-600 mt-2">
-                          <Check className="w-4 h-4 mr-2" />
-                          <span>{discount}% discount applied!</span>
-                        </div>
-                      )}
-                      {promoCodeStatus === "error" && (
-                        <div className="flex items-center text-red-600 mt-2">
-                          <X className="w-4 h-4 mr-2" />
-                          <span>Invalid promo code</span>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
                 )}
 
@@ -431,10 +446,10 @@ const CheckoutPage = () => {
                           <input
                             type="text"
                             {...register("firstName", formValidation.firstName)}
-                            className={`w-full p-2 border rounded-lg focus:ring-2 ${
+                            className={`w-full p-2 border rounded-lg focus:ring-2 outline-none ${
                               errors.firstName
                                 ? "border-red-500 focus:ring-red-300"
-                                : "focus:ring-indigo-500 focus:border-transparent"
+                                : "focus:ring-indigo-500 focus:border-transparent "
                             }`}
                           />
                           {errors.firstName && (
@@ -450,7 +465,7 @@ const CheckoutPage = () => {
                           <input
                             type="text"
                             {...register("lastName", formValidation.lastName)}
-                            className={`w-full p-2 border rounded-lg focus:ring-2 ${
+                            className={`w-full p-2 border rounded-lg focus:ring-2 outline-none ${
                               errors.lastName
                                 ? "border-red-500 focus:ring-red-300"
                                 : "focus:ring-indigo-500 focus:border-transparent"
@@ -469,7 +484,7 @@ const CheckoutPage = () => {
                           <input
                             type="email"
                             {...register("email", formValidation.email)}
-                            className={`w-full p-2 border rounded-lg focus:ring-2 ${
+                            className={`w-full p-2 border rounded-lg focus:ring-2 outline-none ${
                               errors.email
                                 ? "border-red-500 focus:ring-red-300"
                                 : "focus:ring-indigo-500 focus:border-transparent"
@@ -488,7 +503,7 @@ const CheckoutPage = () => {
                           <input
                             type="tel"
                             {...register("phone", formValidation.phone)}
-                            className={`w-full p-2 border rounded-lg focus:ring-2 ${
+                            className={`w-full p-2 border rounded-lg focus:ring-2 outline-none ${
                               errors.phone
                                 ? "border-red-500 focus:ring-red-300"
                                 : "focus:ring-indigo-500 focus:border-transparent"
@@ -532,41 +547,14 @@ const CheckoutPage = () => {
                   {currentStep === steps.length && (
                     <PaystackButton
                       {...paystackButtonProps}
-                      className="ml-auto flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      className="ml-auto flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
                       onSuccess={handlePaystackSuccess}
                       onClose={handlePaystackClose}
-                      disabled={isProcessing}
                     >
-                      {isProcessing ? (
-                        <span className="flex items-center">
-                          Processing...
-                          <svg
-                            className="animate-spin ml-2 h-4 w-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                        </span>
-                      ) : (
-                        <span className="flex items-center">
-                          Pay Now
-                          <CreditCard className="w-4 h-4 ml-2" />
-                        </span>
-                      )}
+                      <span className="flex items-center">
+                        Pay Now
+                        <CreditCard className="w-4 h-4 ml-2" />
+                      </span>
                     </PaystackButton>
                   )}
                 </div>
