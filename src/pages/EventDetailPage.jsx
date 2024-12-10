@@ -11,7 +11,7 @@ import Footer from '../components/layout/Footer';
 const EventDetailPage = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [selectedTicketType, setSelectedTicketType] = useState(null);
-  const [event, setEvent] = useState(null);
+  const [selectedEvent, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
@@ -21,6 +21,7 @@ const EventDetailPage = () => {
     if (selectedTicketType) {
       navigate(`/checkout/${eventId}`, {
         state: {
+          event: selectedEvent, 
           ticketData: {
             ticketType: selectedTicketType,
             quantity: 1,
@@ -90,8 +91,8 @@ const EventDetailPage = () => {
 
         <div className="relative h-[60vh] md:h-[50vh] bg-purple-900">
           <img 
-            src={event.image} 
-            alt={event.title}
+            src={selectedEvent.image} 
+            alt={selectedEvent.title}
             className="w-full h-full object-cover opacity-60"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 to-transparent" />
@@ -99,25 +100,25 @@ const EventDetailPage = () => {
           <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
             <div className="max-w-[78rem] mx-auto">
               <div className="flex items-center gap-2 mb-4">
-                {event.tags?.map(tag => (
+                {selectedEvent.tags?.map(tag => (
                   <span key={tag} className="px-3 py-1 bg-purple-500/30 backdrop-blur-sm rounded-full text-sm">
                     {tag}
                   </span>
                 ))}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">{event.title}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">{selectedEvent.title}</h1>
               <div className="flex flex-wrap items-center gap-6 text-gray-200">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
-                  {event.date}
+                  {selectedEvent.date}
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                  {event.time}
+                  {selectedEvent.time}
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
-                  {event.location}
+                  {selectedEvent.location}
                 </div>
               </div>
             </div>
@@ -135,7 +136,7 @@ const EventDetailPage = () => {
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Attendees</div>
-                      <div className="text-xl font-bold text-gray-900">{event.attendees}</div>
+                      <div className="text-xl font-bold text-gray-900">{selectedEvent.attendees}</div>
                     </div>
                   </div>
                   <div className="flex gap-4">
@@ -152,7 +153,7 @@ const EventDetailPage = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <h2 className="text-2xl font-bold mb-4">About This Event</h2>
                 <div className={`prose max-w-none ${isDescriptionExpanded ? '' : 'line-clamp-6'}`}>
-                  <p className="whitespace-pre-line">{event.description}</p>
+                  <p className="whitespace-pre-line">{selectedEvent.description}</p>
                 </div>
                 <button 
                   onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
@@ -167,15 +168,15 @@ const EventDetailPage = () => {
                 <h2 className="text-2xl font-bold mb-4">Organizer</h2>
                 <div className="flex items-center gap-4">
                   <img 
-                    src={event.organizer.logo} 
-                    alt={event.organizer.name}
+                    src={selectedEvent.organizer.logo} 
+                    alt={selectedEvent.organizer.name}
                     className="h-16 w-16 rounded-full object-cover"
                   />
                   <div>
-                    <h3 className="font-bold text-lg">{event.organizer.name}</h3>
-                    <p className="text-gray-600 mb-2">{event.organizer.description}</p>
+                    <h3 className="font-bold text-lg">{selectedEvent.organizer.name}</h3>
+                    <p className="text-gray-600 mb-2">{selectedEvent.organizer.description}</p>
                     <div className="text-sm text-gray-500">
-                      {event.organizer.events} events organized
+                      {selectedEvent.organizer.events} events organized
                     </div>
                   </div>
                 </div>
@@ -201,15 +202,15 @@ const EventDetailPage = () => {
                           <h3 className="font-bold">Regular Ticket</h3>
                           <p className="text-sm text-gray-600">General admission</p>
                         </div>
-                        <div className="text-lg font-bold">₦{event.price.regular.toLocaleString()}</div>
+                        <div className="text-lg font-bold">₦{selectedEvent.price.regular.toLocaleString()}</div>
                       </div>
                       <div className="text-sm text-gray-500">
                         <User className="h-4 w-4 inline mr-1" />
-                        {event.tickets?.regular || 0} tickets left
+                        {selectedEvent.tickets?.regular || 0} tickets left
                       </div>
                     </div>
 
-                    {event.price.vip && (
+                    {selectedEvent.price.vip && (
                       <div 
                         className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${
                           selectedTicketType === 'vip' 
@@ -223,16 +224,16 @@ const EventDetailPage = () => {
                             <h3 className="font-bold">VIP Ticket</h3>
                             <p className="text-sm text-gray-600">Premium seating + Swag bag</p>
                           </div>
-                          <div className="text-lg font-bold">₦{event.price.vip.toLocaleString()}</div>
+                          <div className="text-lg font-bold">₦{selectedEvent.price.vip.toLocaleString()}</div>
                         </div>
                         <div className="text-sm text-gray-500">
                           <User className="h-4 w-4 inline mr-1" />
-                          {event.tickets?.vip || 0} tickets left
+                          {selectedEvent.tickets?.vip || 0} tickets left
                         </div>
                       </div>
                     )}
 
-                    {event.price.premium && (
+                    {selectedEvent.price.premium && (
                       <div 
                         className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${
                           selectedTicketType === 'premium' 
@@ -246,11 +247,11 @@ const EventDetailPage = () => {
                             <h3 className="font-bold">Premium Ticket</h3>
                             <p className="text-sm text-gray-600">VIP + Private networking session</p>
                           </div>
-                          <div className="text-lg font-bold">₦{event.price.premium.toLocaleString()}</div>
+                          <div className="text-lg font-bold">₦{selectedEvent.price.premium.toLocaleString()}</div>
                         </div>
                         <div className="text-sm text-gray-500">
                           <User className="h-4 w-4 inline mr-1" />
-                          {event.tickets?.premium || 0} tickets left
+                          {selectedEvent.tickets?.premium || 0} tickets left
                         </div>
                       </div>
                     )}
@@ -262,7 +263,7 @@ const EventDetailPage = () => {
                         ? 'bg-purple-600 hover:bg-purple-700' 
                         : 'bg-gray-300 cursor-not-allowed'
                     }`}
-                    onClick={() => handleViewDetails(event.id)}
+                    onClick={() => handleViewDetails(selectedEvent.id)}
                     disabled={!selectedTicketType}
                   >
                     {selectedTicketType ? 'Purchase Tickets' : 'Select a Ticket Type'}
