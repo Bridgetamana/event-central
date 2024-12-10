@@ -168,7 +168,7 @@ const HomePage = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
-                    className="group relative rounded-xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                    className="group relative rounded-xl overflow-hidden bg-white shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                     onMouseEnter={() => setHoveredEvent(index)}
                     onMouseLeave={() => setHoveredEvent(null)}
                   >
@@ -286,7 +286,7 @@ const HomePage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-gradient-to-b from-indigo-50 to-white p-8 rounded-xl shadow-lg"
+                  className="bg-gradient-to-b from-indigo-50 to-white p-8 rounded-xl shadow"
                 >
                   <div className="space-y-6">
                     <Star className="w-8 h-8 text-yellow-400" />
@@ -370,8 +370,8 @@ const HomePage = () => {
                   transition={{ delay: index * 0.1 }}
                   className={`rounded-xl p-8 ${
                     plan.highlighted
-                      ? "bg-gradient-to-b from-indigo-600 to-purple-600 text-white shadow-xl transform scale-105"
-                      : "bg-white text-zinc-900 shadow-lg"
+                      ? "bg-gradient-to-b from-indigo-600 to-purple-600 text-white shadow transform scale-105"
+                      : "bg-white text-zinc-900 shadow"
                   }`}
                 >
                   <div className="space-y-6">
@@ -416,7 +416,7 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="text-center mt-20"
             >
-              <div className="bg-white p-10 rounded-lg max-w-4xl mx-auto shadow-xl">
+              <div className="bg-white p-10 rounded-lg max-w-4xl mx-auto shadow">
                 <h3 className="text-2xl md:text-3xl font-bold text-indigo-600 mb-4">
                   Enhance Your Event with Add-Ons
                 </h3>

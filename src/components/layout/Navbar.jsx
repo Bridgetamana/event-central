@@ -22,14 +22,11 @@ const Navbar = () => {
   };
 
   const navigateToSection = (section) => {
-    // Close mobile menu
     setIsMobileMenuOpen(false);
 
-    // If we're not on the home page, navigate to home and scroll to section
     if (location.pathname !== "/") {
       navigate("/", { state: { scrollToSection: section } });
     } else {
-      // If we're already on the home page, scroll to section
       scrollToSection(section);
     }
   };
@@ -41,14 +38,11 @@ const Navbar = () => {
     }
   };
 
-  // Handle navigation state for scrolling
   useEffect(() => {
     const state = location.state;
     if (state && state.scrollToSection) {
-      // Clear the state to prevent repeated scrolling
       window.history.replaceState({}, document.title);
       
-      // Scroll to the section after a short delay to ensure page load
       setTimeout(() => {
         scrollToSection(state.scrollToSection);
       }, 100);
@@ -131,7 +125,7 @@ const Navbar = () => {
                 <button
                   key={link.name}
                   onClick={() => navigateToSection(link.section)}
-                  className="text-zinc-600 hover:text-indigo-600 transition-colors"
+                  className="text-zinc-600 hover:text-indigo-600 transition-colors inline-flex"
                 >
                   {link.name}
                 </button>
@@ -140,7 +134,7 @@ const Navbar = () => {
             <Link 
               to="/login"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+              className="pr-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
             >
               Log in
             </Link>
